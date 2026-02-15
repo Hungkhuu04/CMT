@@ -21,6 +21,7 @@ from herald.models import SentNotification
 from core.finances import get_quickbooks_client, invoice_search, create_line
 from email_signals.models import EmailSignalMixin
 from core.models import (
+    CHAPTER_OFFICER_REQUIRED,
     TODAY_END,
     annotate_role_status,
     CHAPTER_OFFICER,
@@ -594,104 +595,46 @@ class Chapter(models.Model, EmailSignalMixin):
         # list all officers that currently hold an executive board position
         # current and future
         officers = self.members.filter(
-            roles__role__in=CHAPTER_OFFICER,
+            roles__role__in=CHAPTER_OFFICER_REQUIRED,
             roles__end__gte=TODAY_END,
         ).prefetch_related("roles")
-        current_and_future_regent = officers.filter(roles__role="regent")
-        current_and_future_scribe = officers.filter(roles__role="scribe")
-        current_and_future_vice = officers.filter(roles__role="vice regent")
-        current_and_future_treasurer = officers.filter(roles__role="treasurer")
-        current_and_future_corsec = officers.filter(
-            roles__role="corresponding secretary"
-        )
-        return (
-            current_and_future_regent,
-            current_and_future_corsec,
-            current_and_future_scribe,
-            current_and_future_treasurer,
-            current_and_future_vice,
-        )
+        current_and_future = {}
+        for role in CHAPTER_OFFICER_REQUIRED:
+            current_and_future[role] = officers.filter(roles__role=role)
+        return current_and_future
 
     def get_previous_officers(self):
         # list the most recent officer that held position
+
         previous_officers = self.members.filter(
-            roles__role__in=CHAPTER_OFFICER,
+            roles__role__in=CHAPTER_OFFICER_REQUIRED,
             roles__end__gte=TODAY_END
             - timedelta(30 * 8),  # they ended their role in the last 8 months
         ).prefetch_related("roles")
-        past_regent = (
-            previous_officers.filter(roles__role="regent")
-            .order_by("roles__end")
-            .first()
-        )
-        past_scribe = (
-            previous_officers.filter(roles__role="scribe")
-            .order_by("roles__end")
-            .first()
-        )
-        past_vice = (
-            previous_officers.filter(roles__role="vice regent")
-            .order_by("roles__end")
-            .first()
-        )
-        past_treasurer = (
-            previous_officers.filter(roles__role="treasurer")
-            .order_by("roles__end")
-            .first()
-        )
-        past_corsec = (
-            previous_officers.filter(roles__role="corresponding secretary")
-            .order_by("roles__end")
-            .first()
-        )
-
-        return past_regent, past_corsec, past_scribe, past_treasurer, past_vice
+        previous = {}
+        for role in CHAPTER_OFFICER_REQUIRED:
+            past = (
+                previous_officers.filter(roles__role=role)
+                .order_by("roles__end")
+                .first()
+            )
+            previous[role] = past
+        return previous
 
     def get_about_expired_coucil(self):
         officers_to_update, members_to_notify, emails = [], [], []
         # officer_to_update is a list of all officers that need to be updated on the CMT
         # members_to_notify is a list of members that currently hold and/or held within the last eight months
         # the officer position that needs to be updated
-        (
-            past_regent,
-            past_corsec,
-            past_scribe,
-            past_treasurer,
-            past_vice,
-        ) = self.get_previous_officers()
+        previous = self.get_previous_officers()
         # gathers past officers by position
-        (
-            current_and_future_regent,
-            current_and_future_corsec,
-            current_and_future_scribe,
-            current_and_future_treasurer,
-            current_and_future_vice,
-        ) = self.get_current_and_future()
+        current_and_future = self.get_current_and_future()
         # gathers current and future officers by position
 
         # dictionary that contains all the chapter officer positions as a key with values of type tuple
-        current_past = {
-            "regent": (
-                current_and_future_regent,
-                past_regent,
-            ),
-            "vice regent": (
-                current_and_future_vice,
-                past_vice,
-            ),
-            "corresponding secretary": (
-                current_and_future_corsec,
-                past_corsec,
-            ),
-            "scribe": (
-                current_and_future_scribe,
-                past_scribe,
-            ),
-            "treasurer": (
-                current_and_future_treasurer,
-                past_treasurer,
-            ),
-        }
+        current_past = {}
+        for role in CHAPTER_OFFICER_REQUIRED:
+            current_past[role] = (current_and_future.get(role), previous.get(role))
 
         # position is the key of the dictionary that contains chapter officer positions while
         # info is the value that contains the tuple
