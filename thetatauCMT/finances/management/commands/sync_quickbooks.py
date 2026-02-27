@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 from django.utils import timezone
-from quickbooks.objects.customer import Customer
+from quickbooks.objects.customer import Customer, EmailAddress
 from quickbooks.objects.invoice import Invoice as QBInvoice
 from viewflow.models import Task
 from viewflow.activation import STATUS
@@ -124,6 +124,7 @@ class Command(BaseCommand):
                     print("    No current email")
                     print("    New Email: ", email_str)
                     if live:
+                        customer.PrimaryEmailAddr = EmailAddress()
                         customer.PrimaryEmailAddr.Address = email_str
                         customer.save(qb=client)
                 elif customer.PrimaryEmailAddr.Address != email_str:
