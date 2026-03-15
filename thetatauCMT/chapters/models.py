@@ -224,6 +224,26 @@ class Chapter(models.Model, EmailSignalMixin):
         blank=True,
         help_text="You must include the full URL including https:// or http://",
     )
+    instagram = models.URLField(
+        blank=True,
+        help_text="You must include the full URL including https:// or http://",
+    )
+    tiktok = models.URLField(
+        blank=True,
+        help_text="You must include the full URL including https:// or http://",
+    )
+    linkedin = models.URLField(
+        blank=True,
+        help_text="You must include the full URL including https:// or http://",
+    )
+    youtube = models.URLField(
+        blank=True,
+        help_text="You must include the full URL including https:// or http://",
+    )
+    twitter = models.URLField(
+        blank=True,
+        help_text="You must include the full URL including https:// or http://",
+    )
     address_contact = models.CharField(
         max_length=100,
         help_text="Name of person to contact at address for deliveries",
@@ -244,6 +264,12 @@ class Chapter(models.Model, EmailSignalMixin):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
+    )
+    address_line_2 = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_("Mailing Address Line 2"),
+        help_text="Sometimes the address is not sufficient and you need a second line for the address. This is not a separate address, just an additional line for the main address. For example, you may need to include a building name or a specific person to receive the mail.",
     )
     balance = models.DecimalField(
         default=0, decimal_places=2, max_digits=7, help_text="Balance chapter owes."
