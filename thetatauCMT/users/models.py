@@ -310,9 +310,9 @@ class User(AbstractUser, EmailSignalMixin):
         self, status, created=None, start=None, end=None, current=True
     ):
         if start is None:
-            start = TODAY
+            start = datetime.datetime.now().date()
         if created is None:
-            created = TODAY
+            created = datetime.datetime.now().date()
         if end is None:
             end = forever()
         if type(end) is datetime.datetime:
@@ -323,6 +323,7 @@ class User(AbstractUser, EmailSignalMixin):
             status = status.status
         if current:
             # If the current status is being set, previous status should end at the start
+            TODAY_END = datetime.datetime.combine(datetime.datetime.now().date(), datetime.time.max)
             current_status = self.status.filter(
                 start__lte=TODAY_END, end__gte=TODAY_END
             ).all()
