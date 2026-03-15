@@ -1183,6 +1183,9 @@ class DisciplinaryProcessFlow(Flow):
             message=message,
             fields=fields,
             direct_user=self.chapter_regent(activation),
+            extra_emails={
+                activation.process.chapter.region.email,
+            },
         ).send()
 
     def chapter_regent(self, activation):
