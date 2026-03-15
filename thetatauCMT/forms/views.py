@@ -46,6 +46,7 @@ from viewflow.frontend.viewset import FlowViewSet
 from viewflow.models import Task as FlowTask
 
 from core.flows import FilterProcessListView, AutoAssignUpdateProcessView
+from forms.notifications import CentralOfficeGenericEmail
 from core.forms import MultiFormsView
 from core.models import (
     semester_encompass_start_end_date,
@@ -1741,7 +1742,13 @@ class PledgeFormView(CreateView):
             )
             active_process = activation.process
         active_process.pledges.add(self.object)
-        Training.add_user(user, request=self.request)
+        try:
+            Training.add_user(user, request=self.request)
+        except Exception as e:
+            message = f"Error adding training {user=} {user.chapter=} {e}"
+            CentralOfficeGenericEmail(
+                message, subject="[CMT] Training Error"
+            ).send()
         messages.add_message(
             self.request,
             messages.INFO,
