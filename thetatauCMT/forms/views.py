@@ -843,7 +843,7 @@ class RoleChangeView(LoginRequiredMixin, ModelFormSetView):
                 role = form.instance.role
                 if role in CHAPTER_OFFICER:
                     status_info = member.status.filter(
-                        status__in=["away"],
+                        status__in=["away", "alumni"],
                     ).values("status", "start", "end")
                     for status in status_info:
                         latest_start = max(form.instance.start, status["start"])
@@ -852,12 +852,12 @@ class RoleChangeView(LoginRequiredMixin, ModelFormSetView):
                         overlap = max(0, delta)
                         if overlap > 0:
                             error = True
-                            role_message = f"Away status start: {status['start']} end: {status['end']}"
+                            role_message = f"Status {status['status']} start: {status['start']} end: {status['end']}"
                             messages.add_message(
                                 self.request,
                                 messages.ERROR,
                                 mark_safe(
-                                    f"For member {member}. Away status (eg. COOP status) must not overlap with officer term.<br>{role_message}"
+                                    f"For member {member}. {status['status'].capitalize()} status (eg. COOP or alumni status) must not overlap with officer term.<br>{role_message}"
                                 ),
                             )
             if error:
