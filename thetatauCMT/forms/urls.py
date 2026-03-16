@@ -179,4 +179,14 @@ urlpatterns = [
         view=views.ResignationListView.as_view(),
         name="resign_list",
     ),
+    path(
+        "ritual/",
+        view=views.RitualProficiencyCreateView.as_view(),
+        name="ritual_proficiency",
+    ),
+    path(
+        "ritual/user-table/",
+        view=views.RitualProficiencyUserTableView.as_view(),
+        name="ritual_proficiency_user_table",
+    ),
 ]

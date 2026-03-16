@@ -48,6 +48,7 @@ from forms.models import (
     ResignationProcess,
     ReturnStudent,
     AlumniExclusion,
+    RitualProficiency,
 )
 from core.admin import (
     user_chapter,
@@ -431,6 +432,18 @@ class UserAlterInline(admin.StackedInline):
         return False
 
 
+class RitualProficiencyInline(admin.TabularInline):
+    model = RitualProficiency
+    fk_name = "user"
+    readonly_fields = ("recorded_by", "created")
+    fields = ["level", "date", "memorization", "directions", "performance", "notes", "recorded_by"]
+    show_change_link = True
+    extra = 0
+
+    def has_add_permission(self, request, obj=None):
+        return True
+
+
 @admin.register(User)
 class MyUserAdmin(
     ImportMixin,
@@ -473,6 +486,7 @@ class MyUserAdmin(
         DisciplinaryProcessInline,
         AlumniExclusionInline,
         CollectionReferralInline,
+        RitualProficiencyInline,
         TrainingInline,
     ]
     form = MyUserChangeForm

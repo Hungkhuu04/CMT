@@ -110,6 +110,7 @@ from .forms import (
     AlumniExclusionForm,
     AlumniExclusionReviewForm,
     AlumniExclusionFormHelper,
+    RitualProficiencyForm,
 )
 from tasks.models import Task
 from scores.models import ScoreType
@@ -143,6 +144,7 @@ from .tables import (
     ResignationStatusTable,
     ReturnStudentStatusTable,
     PledgeProgramStatusTable,
+    RitualProficiencyTable,
 )
 from .models import (
     Badge,
@@ -164,6 +166,7 @@ from .models import (
     ReturnStudent,
     PledgeProgramProcess,
     AlumniExclusion,
+    RitualProficiency,
 )
 from .filters import (
     AuditListFilter,
@@ -3281,3 +3284,38 @@ class BylawsCreateView(
         table = BylawsListTable(data=data)
         context["table"] = table
         return context
+
+
+class RitualProficiencyCreateView(
+    LoginRequiredMixin, NatOfficerRequiredMixin, CreateView
+):
+    model = RitualProficiency
+    form_class = RitualProficiencyForm
+    template_name = "forms/ritual_proficiency_form.html"
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.add_message(
+            self.request,
+            messages.INFO,
+            f"Ritual Proficiency record saved for {form.instance.user}.",
+        )
+        return response
+
+    def get_success_url(self):
+        return reverse("forms:ritual_proficiency")
+
+
+class RitualProficiencyUserTableView(
+    LoginRequiredMixin, NatOfficerRequiredMixin, TemplateView
+):
+    template_name = "forms/ritual_proficiency_table_partial.html"
+
+    def get(self, request, *args, **kwargs):
+        user_id = request.GET.get("user_id", "")
+        if user_id:
+            qs = RitualProficiency.objects.filter(user_id=user_id).order_by("-date")
+        else:
+            qs = RitualProficiency.objects.none()
+        table = RitualProficiencyTable(data=qs)
+        return render(request, self.template_name, {"table": table})

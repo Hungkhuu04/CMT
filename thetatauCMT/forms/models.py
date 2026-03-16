@@ -2144,3 +2144,54 @@ class AlumniExclusion(Process, TimeStampedModel, EmailSignalMixin):
         if self.user:
             value = f"Exclusion of {self.user}"
         return value
+
+
+class RitualProficiency(TimeStampedModel):
+    PASS_FAIL_CHOICES = (("pass", "Pass"), ("fail", "Fail"))
+
+    class LEVELS(EnumClass):
+        level1 = ("level1", "Level 1")
+        level2 = ("level2", "Level 2")
+        level3 = ("level3", "Level 3")
+        level4 = ("level4", "Level 4")
+        level5 = ("level5", "Level 5")
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="Member Being Tested",
+        on_delete=models.CASCADE,
+        related_name="ritual_proficiency",
+    )
+    recorded_by = UserForeignKey(
+        auto_user_add=True,
+        verbose_name="Recorded by",
+        related_name="ritual_proficiency_recorded",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    level = models.CharField(
+        "Ritual Level",
+        max_length=10,
+        choices=[x.value for x in LEVELS],
+    )
+    date = models.DateField("Test Date", default=timezone.now)
+    memorization = models.CharField(
+        "Memorization",
+        max_length=4,
+        choices=PASS_FAIL_CHOICES,
+    )
+    directions = models.CharField(
+        "Directions",
+        max_length=4,
+        choices=PASS_FAIL_CHOICES,
+    )
+    performance = models.CharField(
+        "Performance",
+        max_length=4,
+        choices=PASS_FAIL_CHOICES,
+    )
+    notes = models.TextField("Notes", blank=True)
+
+    def __str__(self):
+        return f"Ritual Proficiency {self.get_level_display()} for {self.user} on {self.date}"
