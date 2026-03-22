@@ -71,6 +71,16 @@ urlpatterns = [
         name="init_csv",
     ),
     url(
+        regex=r"^initiation-csv/(?P<process_pk>\d+)/(?P<csv_type>[\w.@+-]+)/(?P<response_type>[\w.@+-]+)$",
+        view=views.badge_shingle_init_csv,
+        name="init_csv",
+    ),
+    url(
+        regex=r"^post-shingle/(?P<process_pk>\d+)$",
+        view=views.badge_shingle_post,
+        name="shingle_post",
+    ),
+    url(
         regex=r"^initiation-sync/(?P<process_pk>\d+)/(?P<invoice_number>\d+)$",
         view=views.badge_shingle_init_sync,
         name="init_sync",

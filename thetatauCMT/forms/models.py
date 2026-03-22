@@ -20,6 +20,7 @@ from djmoney.models.fields import MoneyField
 from django.utils.translation import gettext_lazy as _
 from email_signals.models import EmailSignalMixin
 from multiselectfield import MultiSelectField
+import requests
 from viewflow.models import Process
 
 # from easy_pdf.rendering import render_to_pdf
@@ -1295,6 +1296,40 @@ class InitiationProcess(Process, EmailSignalMixin):
                 file_obj = shingle_file
             out = file_name, file_obj
         return out
+
+    def post_shingle_to_webhook(self, request=None):
+        file_name, shingle_file = self.generate_badge_shingle_order(
+                csv_type="shingle",
+                get_file=True,
+                file_type="json",
+            )
+        # Post shingle data to Zapier webhook
+        webhook_url = Config.get_value("RegaliaShingleWebhookURL")
+        shingle_data = shingle_file.getvalue()
+        data = {
+            "filename": file_name,
+            "data": shingle_data,
+        }
+        response = requests.post(
+            webhook_url,
+            json=data,
+            headers={"Content-Type": "application/json"},
+        )
+        if response.ok:
+            message_text = f"Shingle data successfully sent to webhook. {file_name=}"
+            message_level = messages.SUCCESS
+        else:
+            message_text = f"Failed to send shingle data (status {response.status_code}): {response.text}"
+            message_level = messages.ERROR
+        if request is not None:
+            messages.add_message(
+                request,
+                message_level,
+                message_text,
+            )
+        else:
+            print(message_text)
+
 
 
 class Convention(Process, YearTermModel):

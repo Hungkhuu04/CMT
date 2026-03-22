@@ -391,7 +391,7 @@ class InitiationProcessFlow(Flow):
 
     shingle_order = flow.Handler(
         this.shingle_order_func,
-        task_title=_("Send shingle order to Google Drive"),
+        task_title=_("Send shingle order to Collegiate Regalia"),
     ).Next(this.complete)
 
     complete = flow.End(
@@ -492,23 +492,8 @@ class InitiationProcessFlow(Flow):
         return activation
 
     def shingle_order_func(self, activation):
-        process = activation.process
-        file_name, shingle_file = process.generate_badge_shingle_order(
-            csv_type="shingle", get_file=True
-        )
-        gauth = login_with_service_account()
-        drive = GoogleDrive(gauth)
-        folder_id = "1KgdpcTWKJQscwbgCGkvpQVzV6yoE8q1k"
-        doc_file = drive.CreateFile(
-            {
-                "title": file_name,
-                "mimeType": "text/csv",
-                "parents": [{"id": folder_id}],
-            }
-        )
-        doc_file.SetContentString(shingle_file.getvalue())
-        # doc_file.content = shingle_file
-        doc_file.Upload()
+        process: InitiationProcess = activation.process
+        process.post_shingle_to_webhook()
 
 
 @register_factory(viewset_class=FilterableFlowViewSet)

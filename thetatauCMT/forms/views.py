@@ -1813,17 +1813,25 @@ class PrematureAlumnusCreateView(LoginRequiredMixin, CreateProcessView):
 
 @group_required("natoff")
 @csrf_exempt
-def badge_shingle_init_csv(request, csv_type, process_pk):
+def badge_shingle_init_csv(request, csv_type, process_pk, response_type="csv"):
     process = InitiationProcess.objects.get(pk=process_pk)
-    response = HttpResponse(content_type="text/csv")
+    content_type = "application/json" if response_type == "json" else "text/csv"
+    response = HttpResponse(content_type=content_type)
     if csv_type in ["badge", "shingle"]:
-        process.generate_badge_shingle_order(response, csv_type)
+        process.generate_badge_shingle_order(response, csv_type, file_type=response_type)
     elif csv_type == "invoice":
         process.generate_blackbaud_update(invoice=True, response=response)
     else:
         process.generate_blackbaud_update(response=response)
     response["Cache-Control"] = "no-cache"
     return response
+
+@group_required("natoff")
+@csrf_exempt
+def badge_shingle_post(request, process_pk):
+    process = InitiationProcess.objects.get(pk=process_pk)
+    process.post_shingle_to_webhook(request)
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
 
 
 @group_required("natoff")
