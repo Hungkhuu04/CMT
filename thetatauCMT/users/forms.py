@@ -320,6 +320,13 @@ class UserAlterForm(forms.ModelForm):
 
 class UserForm(forms.ModelForm):
     address = DuplicateAddressField(widget=AddressWidget)
+    birth_date = forms.DateField(
+        label="Birth Date",
+        widget=DatePicker(
+            options={"format": "M/DD/YYYY"},
+            attrs={"autocomplete": "off"},
+        ),
+    )
 
     class Meta:
         model = User
@@ -331,6 +338,7 @@ class UserForm(forms.ModelForm):
             "phone_number",
             "address",
             "email",
+            "birth_date",
         ]
 
     def __init__(self, *args, **kwargs):
