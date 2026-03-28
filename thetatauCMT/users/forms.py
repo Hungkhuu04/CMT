@@ -6,13 +6,12 @@ from address.widgets import AddressWidget
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Row, Column, Submit
 from crispy_forms.bootstrap import FormActions, InlineField, StrictButton, Field
-from tempus_dominus.widgets import DatePicker
 from allauth.account.forms import LoginForm
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV3
 from core.address import fix_address
 from core.models import BIENNIUM_YEARS, forever
-from core.forms import DuplicateAddressField, SchoolModelChoiceField
+from core.forms import DuplicateAddressField, SchoolModelChoiceField, DatePicker
 from chapters.models import Chapter, ChapterCurricula
 from .models import (
     UserAlter,

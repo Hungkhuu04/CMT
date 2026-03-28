@@ -12,10 +12,10 @@ from crispy_forms.bootstrap import (
     InlineField,
     StrictButton,
 )
-from tempus_dominus.widgets import DatePicker
 from django import forms
 from dal import autocomplete, forward
 from users.models import User
+from core.forms import DatePicker
 from .models import Objective, Action
 
 

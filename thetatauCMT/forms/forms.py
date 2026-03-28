@@ -23,7 +23,6 @@ from djmoney.forms.fields import MoneyField
 from django import forms
 from django.conf import settings
 from django.utils import timezone
-from tempus_dominus.widgets import DatePicker
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV3
 from hcaptcha.fields import hCaptchaField
@@ -31,7 +30,7 @@ from upload_validator import FileTypeValidator
 from chapters.forms import ChapterForm
 from chapters.models import Chapter, ChapterCurricula
 from core.address import fix_address
-from core.forms import DuplicateAddressField, SchoolModelChoiceField
+from core.forms import DuplicateAddressField, SchoolModelChoiceField, DatePicker
 from core.models import CHAPTER_ROLES_CHOICES, NAT_OFFICERS_CHOICES
 from users.models import User, UserRoleChange, UserDemographic
 from .models import (
